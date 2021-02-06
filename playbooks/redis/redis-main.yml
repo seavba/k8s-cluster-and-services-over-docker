@@ -1,0 +1,27 @@
+---
+## This task is calling disk.yml for persistent volumes creation
+## Also runs the redis.yml fiel for creating the 6 redis pods for Redis cluster
+  - name: Redis disks and cluster creation
+    become: false
+    command: kubectl apply -f -
+    args:
+      stdin: "{{ item }}"
+    with_items:
+      - "{{ lookup('file', './disk.yml') }}"
+      - "{{ lookup('file', './redis.yml') }}"
+
+## Removing taints in the k8s cluster
+  - name: Redis remove taint
+    become: false
+    ignore_errors: yes
+    command: kubectl taint nodes --all node-role.kubernetes.io/master-
+
+## Waiting for pods building
+  - name: Pause for 4 minutes to build all the pods
+    pause:
+      minutes: 4
+
+## Joining the redis pods as a cluster unit
+  - name: Redis cluster join
+    become: false
+    shell: echo yes|kubectl exec -i redis-cluster-0 -- redis-trib create --replicas 1 $(kubectl get pods -l app=redis-cluster -o jsonpath='{range.items[*]}{.status.podIP}:6379 ')

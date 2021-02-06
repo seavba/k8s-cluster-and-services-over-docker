@@ -1,0 +1,10 @@
+---
+  - name: Copy calico.yaml to K8s master node
+    ansible.builtin.copy:
+      src: ./calico.yaml
+      dest: /tmp/calico.yaml
+      mode: '0755'
+  #Task for installing calico CNI for K8s cluster
+  - name: Install Calico pod network
+    become: false
+    command: kubectl apply -f /tmp/calico.yaml

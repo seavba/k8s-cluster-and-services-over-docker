@@ -1,0 +1,8 @@
+---
+  - name: Creating rabbitmq cluster
+    community.general.docker_compose:
+      project_src: /vagrant/kubernetes-setup/playbooks/rabbitmq
+    register: output
+
+  - ansible.builtin.debug:
+      var: output

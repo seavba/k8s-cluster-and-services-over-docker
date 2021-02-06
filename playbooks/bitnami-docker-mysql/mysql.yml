@@ -1,0 +1,15 @@
+---
+  - name: Create persistent data directory for mysql
+    file:
+      path: /opt/mysql/data
+      state: directory
+      mode: '0755'
+      owner: ubuntu
+
+  - name: Create and start mysql replica services
+    community.general.docker_compose:
+      project_src: /vagrant/kubernetes-setup/playbooks/bitnami-docker-mysql
+    register: output
+
+  - ansible.builtin.debug:
+      var: output

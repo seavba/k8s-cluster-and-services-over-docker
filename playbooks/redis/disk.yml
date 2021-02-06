@@ -1,0 +1,114 @@
+##YAML file for creating persistent volumes for Redis
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: data-redis-cluster-0
+  labels:
+    type: local
+spec:
+  storageClassName: standard
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  claimRef:
+    namespace: default
+    name: data-redis-cluster-0
+  hostPath:
+    path: "/mnt/data0"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: data-redis-cluster-1
+  labels:
+    type: local
+spec:
+  storageClassName: standard
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  claimRef:
+    namespace: default
+    name: data-redis-cluster-1
+  hostPath:
+    path: "/mnt/data1"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: data-redis-cluster-2
+  labels:
+    type: local
+spec:
+  storageClassName: standard
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  claimRef:
+    namespace: default
+    name: data-redis-cluster-2
+  hostPath:
+    path: "/mnt/data2"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: data-redis-cluster-3
+  labels:
+    type: local
+spec:
+  storageClassName: standard
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  claimRef:
+    namespace: default
+    name: data-redis-cluster-3
+  hostPath:
+    path: "/mnt/data3"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: data-redis-cluster-4
+  labels:
+    type: local
+spec:
+  storageClassName: standard
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  claimRef:
+    namespace: default
+    name: data-redis-cluster-4
+  hostPath:
+    path: "/mnt/data4"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: data-redis-cluster-5
+  labels:
+    type: local
+spec:
+  storageClassName: standard
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  claimRef:
+    namespace: default
+    name: data-redis-cluster-5
+  hostPath:
+    path: "/mnt/data5"

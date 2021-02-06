@@ -1,0 +1,25 @@
+##Main playbook for set up K8s node hosts
+---
+- hosts: node*
+  become: true
+  tasks:
+  - name: k8s service up
+    shell: "service kubelet status | grep running"
+    args:
+      warn: false
+    ignore_errors: yes
+    register: command_result
+
+##if 0 service up, so master and common playbooks can be skipped
+##if 1 service down, so master and common playbooks must be applied
+
+
+  - include_tasks: ./k8s/common-playbook.yml
+    when: command_result.rc != 0
+  - include_tasks: ./k8s/node-playbook.yml
+    when: command_result.rc != 0
+
+#handlers for notifying tasks
+  handlers:
+    - name: docker status
+      service: name=docker state=started

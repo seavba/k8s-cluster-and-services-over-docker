@@ -1,0 +1,58 @@
+##Main playbook for set up a K8s master host
+---
+- hosts: master
+  become: true
+#Environment variables to be used by other playbooks
+  environment:
+    RABBITMQ_DEFAULT_USER: rabbitmq_user
+    RABBITMQ_DEFAULT_PASS: rabbitmq_pass
+    RABBITMQ_MANAGEMENT_BIND_IP: 172.22.0.50
+    MYSQL_USER: mysql_user
+    MYSQL_REPLICATION_USER: repl_user
+    MYSQL_DATABASE: your_db
+    ROOT_PASS: root_pass
+
+  tasks:
+  - name: k8s cluster up
+    become: false
+    shell: "kubectl get nodes | grep node"
+    ignore_errors: yes
+    register: cluster_result
+##if 0 cluster up, so master and common playbooks can be skipped
+##if 1 cluster down, so master and common playbooks must be applied
+
+  - name: Calico running
+    become: false
+    shell: "kubectl get pods -A -o wide | grep calico"
+    ignore_errors: yes
+    register: calico_result
+##if 0 calico already running, so calico playbook can be skipped
+##if 1 cluster down, so calico and services playbooks must be applied
+
+  - include_tasks: ./k8s/common-playbook.yml
+    when: cluster_result.rc != 0
+  - include_tasks: ./k8s/master-playbook.yml
+    when: cluster_result.rc != 0
+## Same than k8s cluster up task:
+##if 0 cluster up, so master and common playbooks can be skipped
+##if 1 cluster down, so master and common playbooks must be applied
+
+  - block:
+      - include_tasks: ./rabbitmq/rabbitmq.yml
+      - include_tasks: ./bitnami-docker-mysql/mysql.yml
+      - include_tasks: ./k8s/calico.yml
+      ## Waiting for calico pods building
+      - name: Pause for 2 minutes to build all the calico pods
+        pause:
+          minutes: 2
+      - include_tasks: ./redis/redis-main.yml
+    when: cluster_result.rc == 0 and calico_result.rc == 1
+## Same than Calico running task
+##if 0 calico already running, so calico playbook can be skipped
+##if 1 cluster down, so calico and services playbooks must be applied
+
+
+#handlers for notifying tasks
+  handlers:
+    - name: docker status
+      service: name=docker state=started

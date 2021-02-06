@@ -1,0 +1,28 @@
+---
+  - name: Initialize the Kubernetes cluster using kubeadm
+    run_once: true
+    command: kubeadm init --apiserver-advertise-address="{{ node_ip }}" --apiserver-cert-extra-sans="{{ node_ip }}"  --node-name master --pod-network-cidr="10.244.0.0/16"
+
+  - name: Create kube directory if it does not exist
+    file:
+      path: /home/vagrant/.kube
+      state: directory
+      mode: '0755'
+      owner: vagrant
+
+  - name: Copy config file
+    ansible.builtin.copy:
+      src: /etc/kubernetes/admin.conf
+      dest: /home/vagrant/.kube/config
+      owner: vagrant
+      group: vagrant
+      mode: '0644'
+      remote_src: yes
+
+  - name: Generate join command
+    command: kubeadm token create --print-join-command
+    register: join_command
+
+  - name: Copy join command to local file
+    become: false
+    local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="./files/join-command"
